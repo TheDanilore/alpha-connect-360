@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+/node_modules
+/venv
+*.log
+.idea/
+.vscode/
+*.db
+*.sqlite3
+*.egg-info
+/dist
+/build
+/.pytest_cache
+*.pem
+*.crt
+*.key
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints
