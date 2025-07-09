@@ -1,0 +1,51 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+/node_modules
+/venv
+*.log
+.idea/
+.vscode/
+*.db
+*.sqlite3
+*.egg-info
+/dist
+/build
+/.pytest_cache
+*.pem
+*.crt
+*.key
+# Ignore Jupyter Notebook checkpoints
+<<<<<<< HEAD
+.ipynb_checkpoints
+
+# Odoo specific
+.installed.cfg
+/eggs
+/parts
+/bin
+/var
+/tmp
+/log
+/data
+/filestore
+/sessions
+
+# Database backups
+*.sql
+*.backup
+*.dump
+
+# Temporary files
+*.tmp
+*.bak
+
+# Local data directories (if using local volumes)
+postgres_data/
+odoo_data/
+=======
+.ipynb_checkpoints
+>>>>>>> 58ac8da6a03454da53024d1aad8308d1b6714214
