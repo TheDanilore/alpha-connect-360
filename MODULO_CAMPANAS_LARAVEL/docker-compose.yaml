@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  # === CAMPAÑAS APP (Laravel) ===
+  campaigns_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alpha_campaigns_laravel
+    ports:
+      - "8080:80"
+    environment:
+      - APP_NAME="Alpha Connect Campaigns"
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=http://localhost:8080
+      - DB_CONNECTION=mysql
+      - DB_HOST=campaigns_db
+      - DB_PORT=3306
+      - DB_DATABASE=alpha_campaigns
+      - DB_USERNAME=campaigns_user
+      - DB_PASSWORD=campaigns_pass
+      - REDIS_HOST=campaigns_redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=redis
+      # APIs de Alpha Connect
+      - ALPHA_CRM_API_URL=http://host.docker.internal:8069
+      - ALPHA_IA_API_URL=http://host.docker.internal:8000
+      - ALPHA_INTEGRATIONS_API_URL=http://host.docker.internal:3000
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./bootstrap/cache:/var/www/html/bootstrap/cache
+    depends_on:
+      - campaigns_db
+      - campaigns_redis
+    networks:
+      - alpha_network
+    restart: unless-stopped
+
+  # === BASE DE DATOS CAMPAIGNS (MySQL) ===
+  campaigns_db:
+    image: mysql:8.0
+    container_name: alpha_campaigns_db
+    environment:
+      - MYSQL_DATABASE=alpha_campaigns
+      - MYSQL_USER=campaigns_user
+      - MYSQL_PASSWORD=campaigns_pass
+      - MYSQL_ROOT_PASSWORD=root_campaigns_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - campaigns_mysql_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - alpha_network
+    restart: unless-stopped
+
+  # === REDIS PARA CAMPAIGNS ===
+  campaigns_redis:
+    image: redis:7-alpine
+    container_name: alpha_campaigns_redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - campaigns_redis_data:/data
+    networks:
+      - alpha_network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # === QUEUE WORKER ===
+  campaigns_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alpha_campaigns_worker
+    environment:
+      - APP_NAME="Alpha Connect Campaigns Worker"
+      - APP_ENV=production
+      - DB_CONNECTION=mysql
+      - DB_HOST=campaigns_db
+      - DB_PORT=3306
+      - DB_DATABASE=alpha_campaigns
+      - DB_USERNAME=campaigns_user
+      - DB_PASSWORD=campaigns_pass
+      - REDIS_HOST=campaigns_redis
+      - REDIS_PORT=6379
+      - QUEUE_CONNECTION=redis
+    volumes:
+      - ./storage:/var/www/html/storage
+    depends_on:
+      - campaigns_db
+      - campaigns_redis
+    networks:
+      - alpha_network
+    restart: unless-stopped
+    command: php artisan queue:work --daemon --tries=3
+
+volumes:
+  campaigns_mysql_data:
+  campaigns_redis_data:
+
+networks:
+  alpha_network:
+    driver: bridge

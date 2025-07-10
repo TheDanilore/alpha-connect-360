@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crm_lead_alpha,crm.lead.alpha,crm.model_crm_lead,sales_team.group_sale_salesman,1,1,1,0
+access_crm_lead_alpha_manager,crm.lead.alpha.manager,crm.model_crm_lead,sales_team.group_sale_manager,1,1,1,1
+access_res_partner_alpha,res.partner.alpha,base.model_res_partner,sales_team.group_sale_salesman,1,1,1,0
+access_res_partner_alpha_manager,res.partner.alpha.manager,base.model_res_partner,sales_team.group_sale_manager,1,1,1,1
+access_crm_stage_alpha,crm.stage.alpha,crm.model_crm_stage,sales_team.group_sale_salesman,1,0,0,0
+access_crm_stage_alpha_manager,crm.stage.alpha.manager,crm.model_crm_stage,sales_team.group_sale_manager,1,1,1,1

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista formulario extendida para partners/customers -->
+        <record id="view_partner_form_alpha" model="ir.ui.view">
+            <field name="name">res.partner.form.alpha</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <!-- Agregar botón de análisis de comportamiento -->
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button class="oe_stat_button" type="object" name="action_analyze_customer_behavior">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">🤖</span>
+                            <span class="o_stat_text">AI Analysis</span>
+                        </div>
+                    </button>
+                </xpath>
+
+                <!-- Agregar página de Customer Intelligence -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="🧠 Customer Intelligence" name="customer_intelligence" groups="sales_team.group_sale_salesman">
+                        <group>
+                            <group string="AI Analytics">
+                                <field name="customer_lifetime_value" widget="monetary"/>
+                                <field name="churn_risk_score" widget="progressbar"/>
+                                <field name="satisfaction_score" widget="gauge" 
+                                       options="{'max_field': 10, 'style': 'width:100px;height:80px;'}"/>
+                                <field name="customer_segment"/>
+                                <field name="ai_last_update"/>
+                            </group>
+                            <group string="Purchase Behavior">
+                                <field name="purchase_frequency"/>
+                                <field name="avg_order_value" widget="monetary"/>
+                                <field name="total_orders"/>
+                                <field name="last_order_date"/>
+                            </group>
+                        </group>
+
+                        <group>
+                            <group string="Communication Preferences">
+                                <field name="preferred_communication_channel"/>
+                                <field name="communication_frequency"/>
+                            </group>
+                            <group string="Loyalty Program">
+                                <field name="loyalty_points"/>
+                                <field name="loyalty_tier" widget="priority"/>
+                            </group>
+                        </group>
+
+                        <group string="Company Information" attrs="{'invisible': [('is_company', '=', False)]}">
+                            <group>
+                                <field name="company_industry"/>
+                                <field name="company_size_range"/>
+                                <field name="annual_revenue_range"/>
+                            </group>
+                        </group>
+
+                        <group string="Social Media Presence">
+                            <group>
+                                <field name="linkedin_profile" widget="url"/>
+                                <field name="twitter_handle"/>
+                            </group>
+                            <group>
+                                <field name="facebook_profile" widget="url"/>
+                                <field name="instagram_handle"/>
+                            </group>
+                        </group>
+
+                        <group>
+                            <field name="ai_recommendations" string="AI Recommendations" widget="text" colspan="2"/>
+                        </group>
+                        
+                        <group>
+                            <field name="next_best_action" string="Next Best Action" widget="text" colspan="2"/>
+                        </group>
+                    </page>
+                </xpath>
+
+                <!-- Agregar información clave en la vista principal -->
+                <xpath expr="//field[@name='category_id']" position="after">
+                    <field name="customer_segment" attrs="{'invisible': [('customer_rank', '=', 0)]}"/>
+                    <field name="churn_risk_score" widget="progressbar" 
+                           attrs="{'invisible': [('customer_rank', '=', 0)]}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista de árbol extendida para customers -->
+        <record id="view_partner_tree_alpha" model="ir.ui.view">
+            <field name="name">res.partner.tree.alpha</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='display_name']" position="after">
+                    <field name="customer_segment" optional="show"/>
+                    <field name="customer_lifetime_value" optional="show" widget="monetary"/>
+                    <field name="churn_risk_score" optional="hide" widget="progressbar"/>
+                    <field name="total_orders" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista específica para customers con analytics -->
+        <record id="action_partner_customer_alpha" model="ir.actions.act_window">
+            <field name="name">Alpha Customers</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="domain">[('customer_rank', '>', 0)]</field>
+            <field name="context">{
+                'default_customer_rank': 1,
+                'search_default_customer': 1,
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    👥 Welcome to Alpha Customer Intelligence!
+                </p>
+                <p>
+                    Create customer profiles and analyze their behavior with AI.
+                </p>
+            </field>
+        </record>
+
+        <!-- Vista Kanban para customers -->
+        <record id="view_partner_kanban_alpha" model="ir.ui.view">
+            <field name="name">res.partner.kanban.alpha</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.res_partner_kanban_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[hasclass('oe_kanban_details')]" position="inside">
+                    <div t-if="record.customer_segment.raw_value" class="mt-1">
+                        <span class="badge badge-pill badge-primary" t-esc="record.customer_segment.value"/>
+                    </div>
+                    <div t-if="record.customer_lifetime_value.raw_value > 0" class="mt-1">
+                        <i class="fa fa-dollar"/> CLV: <t t-esc="record.customer_lifetime_value.value"/>
+                    </div>
+                    <div t-if="record.churn_risk_score.raw_value > 50" class="mt-1">
+                        <span class="badge badge-pill badge-warning">
+                            <i class="fa fa-exclamation-triangle"/> Risk: <t t-esc="Math.round(record.churn_risk_score.raw_value)"/>%
+                        </span>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Menú para customers -->
+        <menuitem id="menu_alpha_customers"
+                  name="👥 Alpha Customers"
+                  action="action_partner_customer_alpha"
+                  parent="crm.crm_menu_root"
+                  sequence="15"/>
+    </data>
+</odoo>

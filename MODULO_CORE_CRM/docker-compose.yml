@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - alpha_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Odoo Community con personalizaciones Alpha Connect
+  odoo:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./odoo:/opt/odoo
+      - ./custom_addons:/opt/odoo/custom_addons
+      - ./config:/etc/odoo
+      - odoo_data:/var/lib/odoo
+    environment:
+      - HOST=postgres
+      - USER=odoo
+      - PASSWORD=odoo_password
+    networks:
+      - alpha_network
+    command: [
+      "--config=/etc/odoo/odoo.conf",
+      "--database=alpha_connect_db",
+      "--dev=reload,qweb,werkzeug,xml"
+    ]
+    restart: unless-stopped
+
+  # PgAdmin para administrar la base de datos (opcional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@alphaconnect.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - alpha_network
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  odoo_data:
+  pgadmin_data:
+
+networks:
+  alpha_network:
+    driver: bridge

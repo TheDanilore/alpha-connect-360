@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  # === IA API (FastAPI) ===
+  ia_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alpha_ia_fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHON_ENV=production
+      - API_V1_PREFIX=/api/v1
+      - REDIS_URL=redis://ia_redis:6379
+      - MONGODB_URL=mongodb://ia_user:ia_pass@ia_mongodb:27017/alpha_ia
+      # APIs de Alpha Connect
+      - ALPHA_CRM_API_URL=http://host.docker.internal:8069
+      - ALPHA_CAMPAIGNS_API_URL=http://host.docker.internal:8080
+      - ALPHA_INTEGRATIONS_API_URL=http://host.docker.internal:3000
+      # Configuración de ML
+      - MODEL_PATH=/app/models
+      - TRAINING_DATA_PATH=/app/data
+      - TENSORFLOW_SERVING_URL=http://tf_serving:8501
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - ia_redis
+      - ia_mongodb
+      - tf_serving
+    networks:
+      - alpha_network
+    restart: unless-stopped
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+
+  # === REDIS PARA IA ===
+  ia_redis:
+    image: redis:7-alpine
+    container_name: alpha_ia_redis
+    ports:
+      - "6381:6379"
+    volumes:
+      - ia_redis_data:/data
+    networks:
+      - alpha_network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # === MONGODB PARA IA ===
+  ia_mongodb:
+    image: mongo:6.0
+    container_name: alpha_ia_mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=ia_user
+      - MONGO_INITDB_ROOT_PASSWORD=ia_pass
+      - MONGO_INITDB_DATABASE=alpha_ia
+    ports:
+      - "27018:27017"
+    volumes:
+      - ia_mongodb_data:/data/db
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - alpha_network
+    restart: unless-stopped
+
+  # === TENSORFLOW SERVING ===
+  tf_serving:
+    image: tensorflow/serving:2.13.0
+    container_name: alpha_tf_serving
+    ports:
+      - "8501:8501"  # REST API
+      - "8500:8500"  # gRPC API
+    environment:
+      - MODEL_NAME=alpha_scoring_model
+      - MODEL_BASE_PATH=/models
+    volumes:
+      - ./tensorflow_models:/models
+    networks:
+      - alpha_network
+    restart: unless-stopped
+
+  # === JUPYTER NOTEBOOK PARA DESARROLLO ===
+  ia_notebook:
+    build:
+      context: .
+      dockerfile: Dockerfile.notebook
+    container_name: alpha_ia_jupyter
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=alpha_connect_jupyter_token
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./models:/home/jovyan/models
+      - ./data:/home/jovyan/data
+    networks:
+      - alpha_network
+    restart: unless-stopped
+
+  # === WORKER PARA ENTRENAMIENTOS ===
+  ia_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: alpha_ia_worker
+    environment:
+      - PYTHON_ENV=production
+      - REDIS_URL=redis://ia_redis:6379
+      - MONGODB_URL=mongodb://ia_user:ia_pass@ia_mongodb:27017/alpha_ia
+      - WORKER_TYPE=training
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - ia_redis
+      - ia_mongodb
+    networks:
+      - alpha_network
+    restart: unless-stopped
+    command: python -m celery worker -A worker.celery --loglevel=info
+
+volumes:
+  ia_redis_data:
+  ia_mongodb_data:
+
+networks:
+  alpha_network:
+    driver: bridge

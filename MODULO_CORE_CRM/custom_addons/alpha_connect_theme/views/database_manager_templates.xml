@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Database Manager - Main Template -->
+    <template id="database_manager" inherit_id="web.database_manager" name="Alpha Connect Database Manager">
+        <xpath expr="//title" position="replace">
+            <title>Alpha Connect - Administración de Base de Datos</title>
+        </xpath>
+        
+        <!-- Add URL fixer script with high priority -->
+        <xpath expr="//head" position="inside">
+            <script src="/alpha_connect_theme/static/src/js/global_url_fixer.js" type="text/javascript"></script>
+            <script type="text/javascript">
+                // Inline script with high priority to fix database manager links
+                (function() {
+                    // Force overwrite all links on the page that might point to /odoo
+                    function fixDbLinks() {
+                        // Fix all links, including dynamically added ones
+                        const allLinks = document.querySelectorAll('a');
+                        
+                        for (const link of allLinks) {
+                            if (link.getAttribute('href') && link.getAttribute('href').includes('/odoo')) {
+                                console.log('Fixed link inline:', link.href);
+                                link.href = link.href.replace('/odoo', '/web/login');
+                            } 
+                            
+                            if (link.getAttribute('t-attf-href') && link.getAttribute('t-attf-href').includes('/odoo')) {
+                                console.log('Fixed template link:', link.getAttribute('t-attf-href'));
+                                link.setAttribute('t-attf-href', link.getAttribute('t-attf-href').replace('/odoo', '/web/login'));
+                            }
+                            
+                            // Add click handler to ensure redirect path
+                            link.addEventListener('click', function(e) {
+                                // Check if it's a database link
+                                if (this.getAttribute('data-db') || 
+                                    (this.getAttribute('href') && this.getAttribute('href').includes('db='))) {
+                                    const db = this.getAttribute('data-db') || 
+                                              (new URLSearchParams(this.getAttribute('href').split('?')[1])).get('db');
+                                    if (db) {
+                                        e.preventDefault();
+                                        window.location.href = '/web/login?db=' + db;
+                                        return false;
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    
+                    // Run immediately
+                    document.addEventListener('DOMContentLoaded', fixDbLinks);
+                    // Also run after a short delay to catch dynamic content
+                    setTimeout(fixDbLinks, 100);
+                    setTimeout(fixDbLinks, 500);
+                    setTimeout(fixDbLinks, 1000);
+                })();
+            </script>
+        </xpath>
+        
+        <!-- Replace logo -->
+        <xpath expr="//div[hasclass('o_database_manager')]/div/img" position="attributes">
+            <attribute name="src">/alpha_connect_theme/static/src/img/alpha_connect_logo.png</attribute>
+            <attribute name="alt">Alpha Connect</attribute>
+            <attribute name="class">img-fluid alpha-db-logo</attribute>
+        </xpath>
+        
+        <!-- Replace background and styling -->
+        <xpath expr="//div[hasclass('o_database_manager')]" position="attributes">
+            <attribute name="class">alpha-database-manager</attribute>
+        </xpath>
+        
+        <!-- Remove Odoo references from the headers -->
+        <xpath expr="//div[hasclass('card')]//h2" position="replace">
+            <h2 class="alpha-db-title">Gestor de Base de Datos</h2>
+        </xpath>
+    </template>
+    
+    <!-- Database Selector Template -->
+    <template id="db_selector" inherit_id="web.database_selector" name="Alpha Connect Database Selector">
+        <xpath expr="//div[hasclass('col-12')]//h3" position="replace">
+            <h3 class="alpha-db-subtitle">Seleccionar Base de Datos</h3>
+        </xpath>
+        
+        <xpath expr="//div[hasclass('o_database_list')]/div/img" position="attributes">
+            <attribute name="src">/alpha_connect_theme/static/src/img/alpha_connect_logo.png</attribute>
+            <attribute name="alt">Alpha Connect</attribute>
+            <attribute name="class">img-fluid alpha-db-logo</attribute>
+        </xpath>
+        
+        <!-- Fix DB selection links to avoid /odoo redirect -->
+        <xpath expr="//a[contains(@t-att-href, '/odoo')]" position="attributes">
+            <attribute name="t-att-href">'/web/login?db=%s' % db</attribute>
+        </xpath>
+        
+        <!-- Remove Odoo copyright -->
+        <xpath expr="//div[hasclass('card-footer')]" position="replace">
+            <div class="card-footer bg-transparent alpha-db-footer text-center">
+                <span>© <t t-esc="time.strftime('%Y')"/> Alpha Connect</span>
+            </div>
+        </xpath>
+    </template>
+    
+    <!-- Database Create Form Template -->
+    <template id="db_create_form" inherit_id="web.create_database_form" name="Alpha Connect Create Database">
+        <xpath expr="//h2" position="replace">
+            <h2 class="alpha-db-title">Crear Base de Datos</h2>
+        </xpath>
+        
+        <!-- Fix form action to avoid /odoo redirect -->
+        <xpath expr="//form" position="attributes">
+            <attribute name="action">/web/database/create</attribute>
+        </xpath>
+        
+        <xpath expr="//button[hasclass('btn-primary')]" position="attributes">
+            <attribute name="class">btn btn-primary alpha-btn-create</attribute>
+        </xpath>
+        
+        <xpath expr="//button[hasclass('btn-primary')]" position="replace">
+            <button type="submit" class="btn btn-primary alpha-btn-create">
+                <span>Crear Base de Datos</span>
+            </button>
+        </xpath>
+    </template>
+    
+    <!-- Database Backup Form Template -->
+    <template id="db_backup_form" inherit_id="web.backup_db_form" name="Alpha Connect Backup Database">
+        <xpath expr="//h2" position="replace">
+            <h2 class="alpha-db-title">Respaldar Base de Datos</h2>
+        </xpath>
+        
+        <!-- Fix form action to avoid /odoo redirect -->
+        <xpath expr="//form" position="attributes">
+            <attribute name="action">/web/database/backup</attribute>
+        </xpath>
+        
+        <xpath expr="//button[hasclass('btn-primary')]" position="attributes">
+            <attribute name="class">btn btn-primary alpha-btn-backup</attribute>
+        </xpath>
+        
+        <xpath expr="//button[hasclass('btn-primary')]" position="replace">
+            <button type="submit" class="btn btn-primary alpha-btn-backup">
+                <span>Crear Respaldo</span>
+            </button>
+        </xpath>
+    </template>
+    
+    <!-- Database Restore Form Template -->
+    <template id="db_restore_form" inherit_id="web.restore_db_form" name="Alpha Connect Restore Database">
+        <xpath expr="//h2" position="replace">
+            <h2 class="alpha-db-title">Restaurar Base de Datos</h2>
+        </xpath>
+        
+        <!-- Fix form action to avoid /odoo redirect -->
+        <xpath expr="//form" position="attributes">
+            <attribute name="action">/web/database/restore</attribute>
+        </xpath>
+        
+        <xpath expr="//button[hasclass('btn-primary')]" position="attributes">
+            <attribute name="class">btn btn-primary alpha-btn-restore</attribute>
+        </xpath>
+        
+        <xpath expr="//button[hasclass('btn-primary')]" position="replace">
+            <button type="submit" class="btn btn-primary alpha-btn-restore">
+                <span>Restaurar Base de Datos</span>
+            </button>
+        </xpath>
+    </template>
+    
+    <!-- Database Delete Form Template -->
+    <template id="db_delete_form" inherit_id="web.delete_db_form" name="Alpha Connect Delete Database">
+        <xpath expr="//h2" position="replace">
+            <h2 class="alpha-db-title">Eliminar Base de Datos</h2>
+        </xpath>
+        
+        <!-- Fix form action to avoid /odoo redirect -->
+        <xpath expr="//form" position="attributes">
+            <attribute name="action">/web/database/drop</attribute>
+        </xpath>
+        
+        <xpath expr="//button[hasclass('btn-primary')]" position="attributes">
+            <attribute name="class">btn btn-danger alpha-btn-delete</attribute>
+        </xpath>
+        
+        <xpath expr="//button[hasclass('btn-primary')]" position="replace">
+            <button type="submit" class="btn btn-danger alpha-btn-delete">
+                <span>Eliminar Base de Datos</span>
+            </button>
+        </xpath>
+    </template>
+</odoo>
+

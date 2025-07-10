@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Extender vista formulario de leads/oportunidades -->
+        <record id="view_crm_lead_form_alpha" model="ir.ui.view">
+            <field name="name">crm.lead.form.alpha</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+                <!-- Agregar botón de análisis IA -->
+                <xpath expr="//header/button[@name='action_set_won']" position="before">
+                    <button string="🤖 AI Analysis" 
+                            name="action_request_ai_analysis" 
+                            type="object" 
+                            class="btn-primary"/>
+                </xpath>
+                
+                <!-- Agregar página de IA y Analytics -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="🤖 AI &amp; Analytics" name="ai_analytics">
+                        <group>
+                            <group string="AI Insights">
+                                <field name="ai_conversion_score" widget="progressbar"/>
+                                <field name="ai_customer_segment"/>
+                                <field name="ai_last_analysis_date"/>
+                                <field name="ai_recommended_actions" widget="text"/>
+                            </group>
+                            <group string="Quality Scores">
+                                <field name="lead_quality_score" widget="progressbar"/>
+                                <field name="engagement_score" widget="progressbar"/>
+                            </group>
+                        </group>
+                        
+                        <group>
+                            <group string="Acquisition &amp; Company Info">
+                                <field name="acquisition_channel"/>
+                                <field name="industry_sector"/>
+                                <field name="company_size"/>
+                                <field name="annual_revenue_range"/>
+                            </group>
+                            <group string="Urgency &amp; Timeline">
+                                <field name="urgency_level" widget="priority"/>
+                                <field name="decision_timeline"/>
+                            </group>
+                        </group>
+                        
+                        <group>
+                            <group string="Digital Engagement">
+                                <field name="website_sessions"/>
+                                <field name="email_opens"/>
+                                <field name="email_clicks"/>
+                                <field name="social_engagement_score"/>
+                            </group>
+                            <group string="Competition Analysis">
+                                <field name="competitor_analysis" widget="text"/>
+                                <field name="competitive_advantage" widget="text"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+                
+                <!-- Agregar campos importantes en la vista principal -->
+                <xpath expr="//field[@name='partner_name']" position="after">
+                    <field name="ai_conversion_score" string="AI Score" widget="progressbar"/>
+                    <field name="lead_quality_score" string="Quality" widget="progressbar"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista de árbol extendida -->
+        <record id="view_crm_lead_tree_alpha" model="ir.ui.view">
+            <field name="name">crm.lead.tree.alpha</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='expected_revenue']" position="after">
+                    <field name="ai_conversion_score" string="AI Score" widget="progressbar"/>
+                    <field name="ai_customer_segment"/>
+                    <field name="urgency_level" widget="priority"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Vista Kanban extendida -->
+        <record id="view_crm_lead_kanban_alpha" model="ir.ui.view">
+            <field name="name">crm.lead.kanban.alpha</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+            <field name="arch" type="xml">
+                <!-- Agregar información de IA en las tarjetas Kanban -->
+                <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
+                    <div class="o_kanban_inline_block" t-if="record.ai_conversion_score.raw_value > 0">
+                        <i class="fa fa-robot" title="AI Score"/> 
+                        <t t-esc="Math.round(record.ai_conversion_score.raw_value)"/>%
+                    </div>
+                    <div class="o_kanban_inline_block" t-if="record.urgency_level.raw_value">
+                        <i class="fa fa-exclamation-triangle" 
+                           t-attf-class="text-#{record.urgency_level.raw_value == 'critical' ? 'danger' : record.urgency_level.raw_value == 'high' ? 'warning' : 'info'}"
+                           t-att-title="record.urgency_level.value"/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Dashboard de leads con métricas de IA -->
+        <record id="action_crm_lead_alpha_dashboard" model="ir.actions.act_window">
+            <field name="name">Alpha CRM Dashboard</field>
+            <field name="res_model">crm.lead</field>
+            <field name="view_mode">kanban,tree,form,pivot,graph,activity</field>
+            <field name="domain">[]</field>
+            <field name="context">{
+                'search_default_assigned_to_me': 1,
+                'default_type': 'opportunity',
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    🚀 Welcome to Alpha Connect CRM!
+                </p>
+                <p>
+                    Create your first lead and let our AI analyze the conversion potential.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menú principal personalizado -->
+        <menuitem id="menu_alpha_crm_dashboard"
+                  name="🎯 Alpha CRM"
+                  action="action_crm_lead_alpha_dashboard"
+                  parent="crm.crm_menu_root"
+                  sequence="1"/>
+    </data>
+</odoo>

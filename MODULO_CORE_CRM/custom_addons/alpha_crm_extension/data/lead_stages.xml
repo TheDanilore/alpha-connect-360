@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Configurar etapas personalizadas del pipeline Alpha Connect -->
+        
+        <!-- Etapa 1: Nuevo Lead -->
+        <record id="stage_lead_new" model="crm.stage">
+            <field name="name">🆕 Nuevo Lead</field>
+            <field name="sequence">1</field>
+            <field name="probability">10</field>
+            <field name="stage_color">#17a2b8</field>
+            <field name="conversion_probability">10</field>
+            <field name="expected_duration_days">2</field>
+            <field name="is_initial_stage">True</field>
+            <field name="stage_description">Lead recién ingresado al sistema. Requiere calificación inicial.</field>
+            <field name="automated_actions">- Enviar email de bienvenida
+- Asignar a representante de ventas
+- Programar llamada de calificación</field>
+        </record>
+
+        <!-- Etapa 2: Calificación -->
+        <record id="stage_lead_qualification" model="crm.stage">
+            <field name="name">🔍 Calificación</field>
+            <field name="sequence">2</field>
+            <field name="probability">25</field>
+            <field name="stage_color">#ffc107</field>
+            <field name="conversion_probability">25</field>
+            <field name="expected_duration_days">5</field>
+            <field name="stage_description">Evaluación del potencial del lead. Verificación de criterios BANT.</field>
+            <field name="automated_actions">- Ejecutar análisis de IA
+- Actualizar scoring
+- Programar demo si califica</field>
+        </record>
+
+        <!-- Etapa 3: Demo/Presentación -->
+        <record id="stage_lead_demo" model="crm.stage">
+            <field name="name">🎯 Demo/Presentación</field>
+            <field name="sequence">3</field>
+            <field name="probability">50</field>
+            <field name="stage_color">#fd7e14</field>
+            <field name="conversion_probability">50</field>
+            <field name="expected_duration_days">7</field>
+            <field name="stage_description">Demostración del producto/servicio al prospecto.</field>
+            <field name="automated_actions">- Enviar material de seguimiento
+- Programar reunión de seguimiento
+- Preparar propuesta personalizada</field>
+        </record>
+
+        <!-- Etapa 4: Propuesta -->
+        <record id="stage_lead_proposal" model="crm.stage">
+            <field name="name">📋 Propuesta</field>
+            <field name="sequence">4</field>
+            <field name="probability">70</field>
+            <field name="stage_color">#20c997</field>
+            <field name="conversion_probability">70</field>
+            <field name="expected_duration_days">10</field>
+            <field name="stage_description">Propuesta comercial enviada y en revisión por el cliente.</field>
+            <field name="automated_actions">- Configurar recordatorios de seguimiento
+- Preparar documentos de cierre
+- Notificar a equipo de implementación</field>
+        </record>
+
+        <!-- Etapa 5: Negociación -->
+        <record id="stage_lead_negotiation" model="crm.stage">
+            <field name="name">🤝 Negociación</field>
+            <field name="sequence">5</field>
+            <field name="probability">85</field>
+            <field name="stage_color">#6610f2</field>
+            <field name="conversion_probability">85</field>
+            <field name="expected_duration_days">7</field>
+            <field name="requires_approval">True</field>
+            <field name="stage_description">Negociación final de términos, precios y condiciones.</field>
+            <field name="automated_actions">- Alertar a gerente de ventas
+- Preparar contrato final
+- Configurar proceso de onboarding</field>
+        </record>
+
+        <!-- Etapa 6: Ganado -->
+        <record id="stage_lead_won" model="crm.stage">
+            <field name="name">✅ Ganado</field>
+            <field name="sequence">6</field>
+            <field name="probability">100</field>
+            <field name="stage_color">#28a745</field>
+            <field name="conversion_probability">100</field>
+            <field name="expected_duration_days">1</field>
+            <field name="is_final_stage">True</field>
+            <field name="stage_description">Oportunidad cerrada exitosamente. Cliente confirmado.</field>
+            <field name="automated_actions">- Crear registro de cliente
+- Iniciar proceso de onboarding  
+- Notificar a equipo de éxito del cliente
+- Generar reportes de comisiones</field>
+        </record>
+
+        <!-- Etapa 7: Perdido -->
+        <record id="stage_lead_lost" model="crm.stage">
+            <field name="name">❌ Perdido</field>
+            <field name="sequence">7</field>
+            <field name="probability">0</field>
+            <field name="stage_color">#dc3545</field>
+            <field name="conversion_probability">0</field>
+            <field name="expected_duration_days">1</field>
+            <field name="is_final_stage">True</field>
+            <field name="stage_description">Oportunidad perdida. Analizar motivos para mejora continua.</field>
+            <field name="automated_actions">- Registrar motivo de pérdida
+- Programar seguimiento futuro
+- Analizar feedback para mejoras
+- Actualizar perfil de prospect</field>
+        </record>
+
+        <!-- Etapa 8: Nurturing -->
+        <record id="stage_lead_nurturing" model="crm.stage">
+            <field name="name">🌱 Nurturing</field>
+            <field name="sequence">8</field>
+            <field name="probability">15</field>
+            <field name="stage_color">#6c757d</field>
+            <field name="conversion_probability">15</field>
+            <field name="expected_duration_days">30</field>
+            <field name="stage_description">Lead no está listo para comprar. Mantener engagement con contenido.</field>
+            <field name="automated_actions">- Agregar a secuencia de nurturing
+- Enviar contenido educativo
+- Programar seguimiento mensual
+- Monitorear engagement</field>
+        </record>
+
+    </data>
+</odoo>

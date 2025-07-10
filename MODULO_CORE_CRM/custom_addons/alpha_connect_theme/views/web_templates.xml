@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Web Client Template -->
+    <template id="webclient_bootstrap" inherit_id="web.webclient_bootstrap" name="Alpha Connect Web Client">
+        <xpath expr="//title" position="replace">
+            <title>Alpha Connect</title>
+        </xpath>
+        
+        <!-- Replace favicon -->
+        <xpath expr="//link[@rel='icon']" position="replace">
+            <link rel="icon" href="/alpha_connect_theme/static/src/img/favicon.ico" type="image/x-icon"/>
+        </xpath>
+        
+        <!-- Add Alpha Connect meta tags -->
+        <xpath expr="//head" position="inside">
+            <meta name="application-name" content="Alpha Connect"/>
+            <meta name="description" content="Alpha Connect 360 - Sistema de CRM Avanzado"/>
+        </xpath>
+    </template>
+    
+    <!-- Menu Template -->
+    <template id="menu" inherit_id="web.menu" name="Alpha Connect Menu">
+        <xpath expr="//nav" position="attributes">
+            <attribute name="class" add="alpha-navbar" separator=" "/>
+        </xpath>
+        
+        <!-- Replace Odoo logo in menu -->
+        <xpath expr="//a[hasclass('o_menu_brand')]" position="attributes">
+            <attribute name="class">o_menu_brand alpha-menu-brand</attribute>
+        </xpath>
+        
+        <!-- Replace Odoo logo with text/image -->
+        <xpath expr="//a[hasclass('o_menu_brand')]" position="replace">
+            <a href="#" class="o_menu_brand alpha-menu-brand">
+                <img src="/alpha_connect_theme/static/src/img/alpha_connect_logo_small.png" alt="Alpha Connect" class="alpha-menu-logo"/>
+                <span class="alpha-brand-text">Alpha Connect</span>
+            </a>
+        </xpath>
+    </template>
+    
+    <!-- Footer Template -->
+    <template id="footer" inherit_id="web.login_layout" name="Alpha Connect Footer">
+        <xpath expr="//div[hasclass('o_footer')]" position="replace">
+            <div class="o_footer alpha-footer">
+                <div class="text-center">
+                    <div>© <t t-esc="time.strftime('%Y')"/> Alpha Connect</div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+    
+    <!-- Loading Template -->
+    <template id="loading" inherit_id="web.loading" name="Alpha Connect Loading">
+        <xpath expr="//div[@id='o_loading']" position="replace">
+            <div id="o_loading" class="alpha-loading">
+                <div class="alpha-loading-content">
+                    <img src="/alpha_connect_theme/static/src/img/alpha_connect_loading.png" alt="Loading"/>
+                    <div class="alpha-loading-text">Cargando Alpha Connect...</div>
+                    <div class="alpha-loading-spinner"></div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+    
+    <!-- Alpha Connect Error Pages -->
+    <template id="http_error" inherit_id="web.http_error" name="Alpha Connect HTTP Error">
+        <xpath expr="//title" position="replace">
+            <title>Alpha Connect - Error</title>
+        </xpath>
+        
+        <xpath expr="//div[hasclass('o_database_list')]/div/img" position="attributes">
+            <attribute name="src">/alpha_connect_theme/static/src/img/alpha_connect_logo.png</attribute>
+            <attribute name="alt">Alpha Connect</attribute>
+        </xpath>
+        
+        <xpath expr="//div[hasclass('card-footer')]" position="replace">
+            <div class="card-footer bg-transparent alpha-footer-error text-center">
+                <span>© <t t-esc="time.strftime('%Y')"/> Alpha Connect</span>
+            </div>
+        </xpath>
+    </template>
+    
+    <!-- Template for Redirect to Microservices -->
+    <template id="campaigns_redirect_template" name="Alpha Connect Campaigns Redirect">
+        <t t-call="web.layout">
+            <div class="container alpha-redirect-container">
+                <div class="text-center p-5">
+                    <img src="/alpha_connect_theme/static/src/img/alpha_connect_logo.png" alt="Alpha Connect" class="mb-4" style="max-width: 180px;"/>
+                    <h3 class="mb-3">Redirigiendo al Módulo de Campañas</h3>
+                    <div class="spinner-border text-primary mb-4" role="status">
+                        <span class="sr-only">Cargando...</span>
+                    </div>
+                    <p>Estás siendo redirigido al módulo externo de Campañas...</p>
+                    <a t-att-href="campaigns_url" class="btn btn-primary">Continuar manualmente</a>
+                </div>
+                <script>
+                    setTimeout(function() {
+                        window.location.href = "<t t-esc="campaigns_url"/>";
+                    }, 1500);
+                </script>
+            </div>
+        </t>
+    </template>
+    
+    <template id="integrations_redirect_template" name="Alpha Connect Integrations Redirect">
+        <t t-call="web.layout">
+            <div class="container alpha-redirect-container">
+                <div class="text-center p-5">
+                    <img src="/alpha_connect_theme/static/src/img/alpha_connect_logo.png" alt="Alpha Connect" class="mb-4" style="max-width: 180px;"/>
+                    <h3 class="mb-3">Redirigiendo al Módulo de Integraciones</h3>
+                    <div class="spinner-border text-primary mb-4" role="status">
+                        <span class="sr-only">Cargando...</span>
+                    </div>
+                    <p>Estás siendo redirigido al módulo externo de Integraciones...</p>
+                    <a t-att-href="integrations_url" class="btn btn-primary">Continuar manualmente</a>
+                </div>
+                <script>
+                    setTimeout(function() {
+                        window.location.href = "<t t-esc="integrations_url"/>";
+                    }, 1500);
+                </script>
+            </div>
+        </t>
+    </template>
+    
+    <template id="ai_insights_redirect_template" name="Alpha Connect AI Insights Redirect">
+        <t t-call="web.layout">
+            <div class="container alpha-redirect-container">
+                <div class="text-center p-5">
+                    <img src="/alpha_connect_theme/static/src/img/alpha_connect_logo.png" alt="Alpha Connect" class="mb-4" style="max-width: 180px;"/>
+                    <h3 class="mb-3">Redirigiendo al Módulo de IA Insights</h3>
+                    <div class="spinner-border text-primary mb-4" role="status">
+                        <span class="sr-only">Cargando...</span>
+                    </div>
+                    <p>Estás siendo redirigido al módulo externo de IA Insights...</p>
+                    <a t-att-href="ai_url" class="btn btn-primary">Continuar manualmente</a>
+                </div>
+                <script>
+                    setTimeout(function() {
+                        window.location.href = "<t t-esc="ai_url"/>";
+                    }, 1500);
+                </script>
+            </div>
+        </t>
+    </template>
+</odoo>
