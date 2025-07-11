@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Personalizar el navbar con branding de Alpha Connect 360 -->
+    <template id="alpha_navbar_customization" name="Alpha Connect 360 NavBar" inherit_id="web.webclient_bootstrap">
+        <xpath expr="//meta[@name='theme-color']" position="replace">
+            <meta name="theme-color" content="#1ba7e8"/>
+        </xpath>
+    </template>
+    
+    <!-- Personalizar el template del navbar -->
+    <template id="alpha_navbar_template" name="Alpha Connect 360 NavBar Template" inherit_id="web.NavBar">
+        <xpath expr="//header[@class='o_navbar']" position="attributes">
+            <attribute name="style">background: linear-gradient(90deg, #1ba7e8 0%, #0d8dc9 100%); border-bottom: 2px solid #0d8dc9; box-shadow: 0 2px 8px rgba(27, 167, 232, 0.2);</attribute>
+        </xpath>
+        
+        <!-- Personalizar el botón de apps -->
+        <xpath expr="//button[@title='Home Menu']" position="attributes">
+            <attribute name="style">color: white !important; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;</attribute>
+        </xpath>
+    </template>
+    
+    <!-- Personalizar el dropdown de aplicaciones -->
+    <template id="alpha_apps_dropdown" name="Alpha Connect 360 Apps Dropdown" inherit_id="web.NavBar.AppsMenu">
+        <xpath expr="//button[@data-hotkey='h']" position="attributes">
+            <attribute name="class">alpha-apps-button</attribute>
+            <attribute name="style">color: white; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; transition: all 0.3s ease;</attribute>
+        </xpath>
+    </template>
+    
+    <!-- Ocultar aplicaciones Enterprise -->
+    <template id="alpha_hide_enterprise_apps" name="Hide Enterprise Apps" inherit_id="web.NavBar.AppsMenu">
+        <xpath expr="//DropdownItem[@t-foreach='apps']" position="attributes">
+            <attribute name="t-if">not app.get('to_buy', False)</attribute>
+        </xpath>
+    </template>
+    
+    <!-- Personalizar el footer con Alpha Connect 360 branding -->
+    <template id="alpha_footer_branding" name="Alpha Connect 360 Footer" inherit_id="web.brand_promotion_message">
+        <xpath expr="//t[@t-set='alpha_logo']" position="replace">
+            <t t-set="alpha_logo">
+                <a target="_blank"
+                    href="https://alphaconnect360.com"
+                    class="badge text-bg-primary" style="background-color: #1ba7e8 !important;">
+                    Alpha Connect 360
+                </a>
+            </t>
+        </xpath>
+    </template>
+    
+    <!-- Personalizar título de páginas -->
+    <template id="alpha_page_title" name="Alpha Connect 360 Page Title" inherit_id="web.layout">
+        <xpath expr="//title" position="replace">
+            <title t-esc="title or 'Alpha Connect 360 CRM'"/>
+        </xpath>
+    </template>
+    
+    <!-- Script para ocultar botones de actualización Enterprise -->
+    <template id="alpha_hide_upgrade_buttons" name="Hide Upgrade Buttons">
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                // Función para ocultar botones de upgrade
+                function hideUpgradeButtons() {
+                    // Ocultar botones que contengan texto de upgrade
+                    const upgradeButtons = document.querySelectorAll('button, a, .btn');
+                    upgradeButtons.forEach(function(button) {
+                        const text = button.textContent || button.innerText || '';
+                        if (text.toLowerCase().includes('upgrade') || 
+                            text.toLowerCase().includes('actualizar') ||
+                            text.toLowerCase().includes('buy now') ||
+                            button.getAttribute('href') && button.getAttribute('href').includes('upgrade')) {
+                            button.style.display = 'none';
+                            // También ocultar el contenedor padre si es necesario
+                            if (button.closest('.oe_button_box')) {
+                                button.closest('.oe_button_box').style.display = 'none';
+                            }
+                        }
+                    });
+                    
+                    // Ocultar aplicaciones marcadas como 'to_buy'
+                    const appCards = document.querySelectorAll('.o_app');
+                    appCards.forEach(function(card) {
+                        const upgradeBtn = card.querySelector('button:contains("Upgrade"), button:contains("Actualizar")');
+                        if (upgradeBtn) {
+                            card.style.display = 'none';
+                        }
+                    });
+                }
+                
+                // Ejecutar inmediatamente
+                hideUpgradeButtons();
+                
+                // Ejecutar cuando cambie el contenido (navegación SPA)
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                            setTimeout(hideUpgradeButtons, 100);
+                        }
+                    });
+                });
+                
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+                
+                // También ejecutar en cambios de ruta
+                window.addEventListener('hashchange', function() {
+                    setTimeout(hideUpgradeButtons, 500);
+                });
+                
+                // Ejecutar periódicamente como respaldo
+                setInterval(hideUpgradeButtons, 2000);
+            });
+        </script>
+        
+        <style>
+            /* CSS adicional para ocultar elementos Enterprise */
+            .o_app[data-to-buy="true"],
+            .o_app .oe_button_box .btn[href*="upgrade"],
+            .o_app .oe_button_box .btn[href*="buy"],
+            button[data-original-title*="upgrade"],
+            button[title*="upgrade"],
+            .btn:contains("Upgrade"),
+            .btn:contains("Buy now"),
+            .btn:contains("Actualizar") {
+                display: none !important;
+            }
+            
+            /* Ocultar elementos específicos de Enterprise */
+            .o_enterprise_app_panel,
+            .o_enterprise_upsell,
+            .o_upgrade_banner,
+            .o_enterprise_promotion {
+                display: none !important;
+            }
+            
+            /* Mejorar la apariencia de las apps restantes */
+            .o_apps .o_app {
+                transition: all 0.3s ease;
+                border-radius: 12px;
+                border: 1px solid #e9ecef;
+            }
+            
+            .o_apps .o_app:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 25px rgba(27, 167, 232, 0.15);
+                border-color: #1ba7e8;
+            }
+        </style>
+    </template>
+
+</odoo>
