@@ -56,11 +56,14 @@ COPY ./odoo /opt/odoo
 # Copiar configuración
 COPY ./config/odoo.conf /etc/odoo/odoo.conf
 
+# Crear directorio de datos
+RUN mkdir -p /var/lib/odoo
+
 # Instalar dependencias de Python
 RUN pip3 install --no-cache-dir -r /opt/odoo/requirements.txt
 
 # Cambiar propietario de archivos
-RUN chown -R odoo:odoo /opt/odoo && chown -R odoo:odoo /etc/odoo
+RUN chown -R odoo:odoo /opt/odoo && chown -R odoo:odoo /etc/odoo && chown -R odoo:odoo /var/lib/odoo
 
 # Cambiar al usuario odoo
 USER $ODOO_USER
