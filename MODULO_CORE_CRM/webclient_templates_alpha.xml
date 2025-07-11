@@ -541,9 +541,9 @@
                 <t t-if="request.cookies.get('color_scheme') == 'dark'">
                     <t t-call-assets="web.assets_web_dark" media="screen"/>
                 </t>
-                <t t-else="">
-                    <t t-call-assets="web.assets_web" media="screen"/>
-                </t>
+                <t t-else="">                <t t-call-assets="web.assets_web" media="screen"/>
+                <script src="/web/static/src/alpha_hide_enterprise.js"></script>
+            </t>
                 <t t-call="web.conditional_assets_tests" media="screen"/>
             </t>
             <t t-set="head" t-value="head_web + (head or '')" media="screen"/>
