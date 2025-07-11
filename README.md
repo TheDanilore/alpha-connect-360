@@ -1,7 +1,6 @@
 # Alpha Connect 360 - Sistema CRM Integrado
 
-![Alpha Connect 360](<img width="1891" height="652" alt="logo_alpha_celeste" src="https://github.com/user-attachments/assets/bebeecbb-78d0-441d-b84d-1ad776d621be" />
-)
+<img width="1891" height="652" alt="logo_alpha_celeste" src="https://github.com/user-attachments/assets/bebeecbb-78d0-441d-b84d-1ad776d621be" />
 
 ## 🚀 Descripción
 
