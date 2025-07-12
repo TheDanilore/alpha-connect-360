@@ -45,6 +45,12 @@ def initialize(cr):
 
         if not info:
             continue
+            
+        # ALPHA CONNECT: Skip Enterprise modules during DB initialization
+        if info.get('license') == 'OEEL-1':
+            _logger.info('Skipping Enterprise module: %s', i)
+            continue
+            
         categories = info['category'].split('/')
         category_id = create_categories(cr, categories)
 

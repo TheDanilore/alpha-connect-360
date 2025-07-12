@@ -770,6 +770,13 @@ class Module(models.Model):
         for mod_name in modules.get_modules():
             mod = known_mods_names.get(mod_name)
             terp = self.get_module_info(mod_name)
+            
+            # ALPHA CONNECT: Skip Enterprise modules during update_list
+            if terp.get('license') == 'OEEL-1':
+                if mod:  # If it exists, mark as uninstallable to hide it
+                    mod.write({'state': 'uninstallable'})
+                continue
+                
             values = self.get_values_from_terp(terp)
 
             if mod:

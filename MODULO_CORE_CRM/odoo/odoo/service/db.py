@@ -64,7 +64,7 @@ def _initialize_db(id, db_name, demo, lang, user_password, login='admin', countr
     try:
         db = odoo.sql_db.db_connect(db_name)
         with closing(db.cursor()) as cr:
-            # TODO this should be removed as it is done by Registry.new().
+            # TODO this should be removed as it is done by Registry.new().initialize()
             odoo.modules.db.initialize(cr)
             odoo.tools.config['load_language'] = lang
             cr.commit()
