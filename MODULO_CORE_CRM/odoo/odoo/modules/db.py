@@ -47,8 +47,18 @@ def initialize(cr):
             continue
             
         # ALPHA CONNECT: Skip Enterprise modules during DB initialization
-        if info.get('license') == 'OEEL-1':
-            _logger.info('Skipping Enterprise module: %s', i)
+        # Check multiple indicators of Enterprise modules
+        is_enterprise = (
+            info.get('license') == 'OEEL-1' or  # Enterprise license
+            info.get('to_buy', False) or        # Marked as purchasable
+            'enterprise' in info.get('name', '').lower() or  # Contains 'enterprise' in name
+            any(keyword in info.get('description', '').lower() for keyword in ['enterprise', 'odoo.sh', 'saas']) or  # Enterprise keywords
+            any(keyword in info.get('summary', '').lower() for keyword in ['enterprise', 'odoo.sh'])  # Enterprise in summary
+        )
+        
+        if is_enterprise:
+            _logger.info('Skipping Enterprise module "%s" (license: %s, to_buy: %s)', 
+                        i, info.get('license'), info.get('to_buy', False))
             continue
             
         categories = info['category'].split('/')

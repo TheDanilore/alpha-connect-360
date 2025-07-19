@@ -726,6 +726,13 @@ class Module(models.Model):
 
     @staticmethod
     def get_values_from_terp(terp):
+        # ALPHA CONNECT: Ensure Enterprise modules are explicitly marked
+        is_enterprise = (
+            terp.get('license') == 'OEEL-1' or
+            terp.get('to_buy', False) or
+            'enterprise' in terp.get('name', '').lower()
+        )
+        
         return {
             'description': dedent(terp.get('description', '')),
             'shortdesc': terp.get('name', ''),
@@ -740,7 +747,7 @@ class Module(models.Model):
             'icon': terp.get('icon', False),
             'summary': terp.get('summary', ''),
             'url': terp.get('url') or terp.get('live_test_url', ''),
-            'to_buy': False
+            'to_buy': is_enterprise  # Explicitly set to_buy based on Enterprise detection
         }
 
     @api.model_create_multi
@@ -772,9 +779,20 @@ class Module(models.Model):
             terp = self.get_module_info(mod_name)
             
             # ALPHA CONNECT: Skip Enterprise modules during update_list
-            if terp.get('license') == 'OEEL-1':
+            # Check multiple indicators of Enterprise modules
+            is_enterprise = (
+                terp.get('license') == 'OEEL-1' or  # Enterprise license
+                terp.get('to_buy', False) or        # Marked as purchasable
+                'enterprise' in terp.get('name', '').lower() or  # Contains 'enterprise' in name
+                any(keyword in terp.get('description', '').lower() for keyword in ['enterprise', 'odoo.sh', 'saas']) or  # Enterprise keywords
+                any(keyword in terp.get('summary', '').lower() for keyword in ['enterprise', 'odoo.sh'])  # Enterprise in summary
+            )
+            
+            if is_enterprise:
                 if mod:  # If it exists, mark as uninstallable to hide it
                     mod.write({'state': 'uninstallable'})
+                _logger.info('Skipping Enterprise module "%s" during update_list (license: %s, to_buy: %s)', 
+                           mod_name, terp.get('license'), terp.get('to_buy', False))
                 continue
                 
             values = self.get_values_from_terp(terp)
